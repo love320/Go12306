@@ -2,7 +2,7 @@ package org.love320.go12306.ontrollers;
 
 import java.io.IOException;
 
-import org.apache.commons.httpclient.HttpException;
+import org.apache.http.client.ClientProtocolException;
 import org.love320.go12306.services.ClientHttp;
 import org.love320.go12306.services.ListMsgServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,15 +40,16 @@ public class Login {
 	@RequestMapping("/loginAction")
 	public @ResponseBody Object loginAction(String name,String pwd,String code){
 		boolean stat = false;
-		try {
-			stat = clientHttp.loginGet(name, pwd, code);
-		} catch (HttpException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			try {
+				stat = clientHttp.login(name, pwd, code);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		return stat+":";
 	}
 	
