@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class ListMsgServices {
 	
 	@Autowired
-	private ClientHttp client ;
+	private IClientHttp client ;
 	
 	@Autowired
 	private UserServices userServices;
@@ -50,7 +50,7 @@ public class ListMsgServices {
 				//发邮件
 				String email = user.get("email").toString();
 				String content =  user.get("content").toString();
-				if(content != null && content.trim().length() >0 ) saeMailServices.sendEmail(email,content);
+				//if(content != null && content.trim().length() >0 ) saeMailServices.sendEmail(email,content);
 			}
 			
 			
