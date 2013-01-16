@@ -11,8 +11,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.springframework.stereotype.Service;
 
-//@Service
-public class ClientHttp implements IClientHttp {
+@Service
+public class ClientHttp {
 
 	private static HttpClient client = new HttpClient();// 浏览器
 	private static boolean isLogin = false;// 登录
@@ -38,7 +38,6 @@ public class ClientHttp implements IClientHttp {
 	}
 
 	// 验证是否登录
-	@Override
 	public boolean vailed() throws HttpException, IOException {
 		GetMethod get = new GetMethod("/otsweb/order/querySingleAction.do?method=queryLeftTicket&orderRequest.train_date=2013-02-02&orderRequest.from_station_telecode=SZQ&orderRequest.to_station_telecode=AEQ&orderRequest.train_no=&trainPassType=QB&trainClass=QB%23D%23Z%23T%23K%23QT%23&includeStudent=00&seatTypeAndNum=&orderRequest.start_time_str=00%3A00--24%3A00");
         client.executeMethod(get);
@@ -55,7 +54,6 @@ public class ClientHttp implements IClientHttp {
 	/* (non-Javadoc)
 	 * @see org.love320.go12306.services.IClientHttp#newImage()
 	 */
-	@Override
 	public byte[] newImage() {
 		GetMethod get = new GetMethod("/otsweb/passCodeAction.do?rand=sjrand"+ Math.random());
 		try {
@@ -75,7 +73,6 @@ public class ClientHttp implements IClientHttp {
 	/* (non-Javadoc)
 	 * @see org.love320.go12306.services.IClientHttp#login(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	@Override
 	public boolean login(String loginname,String password,String code) throws HttpException, IOException{
         
         //模拟登录页面/otsweb/loginAction.do?method=login
@@ -113,7 +110,6 @@ public class ClientHttp implements IClientHttp {
 	/* (non-Javadoc)
 	 * @see org.love320.go12306.services.IClientHttp#loginRandGet()
 	 */
-	@Override
 	public String loginRandGet(){
 		//获取登录Rand
         GetMethod loginRandGet = new GetMethod("/otsweb/loginAction.do?method=loginAysnSuggest");
@@ -137,7 +133,6 @@ public class ClientHttp implements IClientHttp {
 		/* (non-Javadoc)
 		 * @see org.love320.go12306.services.IClientHttp#loginGet(java.lang.String, java.lang.String, java.lang.String)
 		 */
-		@Override
 		public boolean loginGet(String loginname,String password,String code) throws HttpException, IOException{
 			
 	        
@@ -173,7 +168,6 @@ public class ClientHttp implements IClientHttp {
 	/* (non-Javadoc)
 	 * @see org.love320.go12306.services.IClientHttp#urlMsg(java.lang.String)
 	 */
-	@Override
 	public String urlMsg(String url){
 		String msg = null;
 		GetMethod get = new GetMethod(url);

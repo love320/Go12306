@@ -3,7 +3,7 @@ package org.love320.go12306.ontrollers;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.HttpException;
-import org.love320.go12306.services.IClientHttp;
+import org.love320.go12306.services.ClientHttp;
 import org.love320.go12306.services.ListMsgServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class Login {
 
 	@Autowired
-	private IClientHttp clientHttp;
+	private ClientHttp clientHttp;
 	
 	@Autowired
 	private ListMsgServices listMsgServices;

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class ListMsgServices {
 	
 	@Autowired
-	private IClientHttp client ;
+	private ClientHttp client ;
 	
 	@Autowired
 	private UserServices userServices;
