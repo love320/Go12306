@@ -50,8 +50,12 @@ public class ClientHttp {
 		String url = "http://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=queryLeftTicket&orderRequest.train_date=2013-02-02&orderRequest.from_station_telecode=SZQ&orderRequest.to_station_telecode=AEQ&orderRequest.train_no=&trainPassType=QB&trainClass=QB%23D%23Z%23T%23K%23QT%23&includeStudent=00&seatTypeAndNum=&orderRequest.start_time_str=00%3A00--24%3A00";
         String[] msg =  urlMsg(url).split(",");
          if(msg.length > 0 && isLogin == false ){
-        	 Integer num = Integer.parseInt(msg[0]);
-        	 if(num >= 0) isLogin = true;
+        	 try {
+        		 Integer num = Integer.parseInt(msg[0]);
+            	 if(num >= 0) isLogin = true;
+			} catch (Exception e) {
+				isLogin = false;
+			}
          }
 		return isLogin;
 	}
