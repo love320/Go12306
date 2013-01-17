@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+
+<!-- 启动定时器 -->
+<bean id="timerBean" class="org.springframework.scheduling.timer.TimerFactoryBean">
+<property name="scheduledTimerTasks">
+<list>
+<ref bean="autoURLscheduledTask"/>
+</list>
+</property>
+</bean>
+
+<bean id="autoURLscheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+<!-- 程序启动后开始执行任务的延迟时间  -->
+<property name="delay" value="0" />
+<!--每隔一天【一天＝24×60×60×1000微秒】执行一次 86400000 -->
+<property name="period" value="5000" />
+<!-- 业务统计报表bean -->
+<property name="timerTask" ref="autoURLTask" />
+</bean>
+
+<bean id="autoURLTask" class="org.love320.go12306.task.AutoURLTask"></bean>
+
+	
+</beans>
