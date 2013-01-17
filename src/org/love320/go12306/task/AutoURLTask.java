@@ -13,8 +13,12 @@ public class AutoURLTask extends TimerTask {
 	
 	@Override
 	public void run() {
-		System.out.println(">>>");
-		listMsgServices.businessAuto();
+		try {
+			listMsgServices.businessAuto();
+		} catch (Exception e) {
+			System.out.println("定时任务：出错");
+		}
+		
 	}
 
 }

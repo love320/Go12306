@@ -14,7 +14,7 @@ public class UserServices {
 
 	//获取所有用户
 	public List newUserAll(){
-		String sql = "SELECT  `id`,  `username`,  `password`,  `email`,  `state` FROM `user` ORDER BY `username` DESC LIMIT 1000 ";
+		String sql = "SELECT  `id`,  `username`,  `password`,  `email`,  `state` FROM `user`  where state = 1 ORDER BY `username` DESC LIMIT 1000 ";
 		return resJdbc.queryForList(sql);
 	}
 	

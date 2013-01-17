@@ -112,6 +112,7 @@ public class ClientHttp {
 	}
 	
 	public String urlMsg(String url){
+		
 		String entity = null;
 		try {
 			HttpGet httpGet = new HttpGet(url);
