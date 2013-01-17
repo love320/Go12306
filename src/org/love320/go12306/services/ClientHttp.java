@@ -2,12 +2,10 @@ package org.love320.go12306.services;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -95,7 +93,7 @@ public class ClientHttp {
 		 
 		 HttpResponse response = client.execute(post);  
          String entity = EntityUtils.toString(response.getEntity()); 
-         System.out.println(entity);
+         //System.out.println(entity);
          
 		return vailed();
 	}
