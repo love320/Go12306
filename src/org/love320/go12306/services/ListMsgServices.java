@@ -28,7 +28,8 @@ public class ListMsgServices {
 	public int businessAuto() {
 		
 		if(!client.isLogin()) {
-			mailServices.sendMail("277191621@qq.com", "12306 定时任务 没登录！", "12306 定时任务 没登录");
+			//mailServices.sendMail("277191621@qq.com", "12306 定时任务 没登录！", "12306 定时任务 没登录");
+			client.sendMail("277191621@qq.com", "12306 定时任务 没登录！", "12306 定时任务 没登录");
 			return 0;
 		}
 
@@ -43,6 +44,13 @@ public class ListMsgServices {
 			for (Map url : urList) {
 				// 处理url
 				List<String> list = msgCar(urlCSV(url.get("url").toString()));
+				
+				 try {  
+	                    Thread.sleep(1000);  
+	                } catch (InterruptedException e) {  
+	                    e.printStackTrace();  
+	                }
+				
 				for (String line : list) {
 					String[] rows = rows(line);
 					content += rowsToLook(rows) + "<br/>";
@@ -57,7 +65,7 @@ public class ListMsgServices {
 			// 发邮件
 			String email = user.get("email").toString();
 			String content = user.get("content").toString();
-			if(content != null && content.trim().length() >0 ) mailServices.sendMail(email, "12306 有票了！", content);
+			if(content != null && content.trim().length() >0 ) client.sendMail(email, "12306 有票了！", content); ///mailServices.sendMail(email, "12306 有票了！", content);
 		}
 		return 1;
 	}
@@ -130,7 +138,7 @@ public class ListMsgServices {
 		for(int i  = 1 ;i<rows.length-1 ;i++){
 			line += rows[i];
 		}
-		System.out.println(""+line);
+		//System.out.println(""+line);
 		return line;
 	}
 	

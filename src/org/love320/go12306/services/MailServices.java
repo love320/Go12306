@@ -25,7 +25,7 @@ public class MailServices {
 	    mailInfo.setMailServerPort("25");      
 	    mailInfo.setValidate(true);      
 	    mailInfo.setUserName("277191621@qq.com");      
-	    mailInfo.setPassword("love#@)");//您的邮箱密码      
+	    mailInfo.setPassword("123456");//您的邮箱密码      
 	    mailInfo.setFromAddress("277191621@qq.com");      
 	    mailInfo.setToAddress(toMail);      
 	    mailInfo.setSubject(title);      

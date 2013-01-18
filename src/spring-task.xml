@@ -22,7 +22,7 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 <!-- 程序启动后开始执行任务的延迟时间  -->
 <property name="delay" value="0" />
 <!--每隔一天【一天＝24×60×60×1000微秒】执行一次 86400000 -->
-<property name="period" value="5000" />
+<property name="period" value="60000" />
 <!-- 业务统计报表bean -->
 <property name="timerTask" ref="autoURLTask" />
 </bean>

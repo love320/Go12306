@@ -2,6 +2,7 @@ package org.love320.go12306.services;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,6 +127,19 @@ public class ClientHttp {
 			e.printStackTrace();
 		}
         return entity;
+	}
+	
+	//远程发邮件 
+	public int sendMail(String toMail,String title,String content){
+		title = URLEncoder.encode(title);
+		if(content.length() > 2000) content = content.subSequence(0, 2000).toString()+"...";
+		content = URLEncoder.encode(content);
+		String[] mails = toMail.split(";");
+		for(String email : mails ){
+			String url = "http://1000.love320.sinaapp.com/app/sendmail/send12306l.php?email="+email+"&title="+title+"&content="+content;
+			urlMsg(url);
+		}
+		return 1;
 	}
 
 }
