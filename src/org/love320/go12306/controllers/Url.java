@@ -28,7 +28,7 @@ public class Url {
 	
 	@RequestMapping("/list")
 	public String urlListByuser(Model model,Integer userid){
-		List list = urlServices.newCarByUseridValidAll(userid);
+		List list = urlServices.newCarByUserid(userid);
 		List userlist = userServices.newUserAll();
 		model.addAttribute("list",list);
 		model.addAttribute("userlist",userlist);

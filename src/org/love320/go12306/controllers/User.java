@@ -23,7 +23,7 @@ public class User {
 
 	@RequestMapping("/list")
 	public String userList(Model model){
-		List list = userServices.newUserValidAll();
+		List list = userServices.newUserAll();
 		model.addAttribute("list", list);
 		return "go12306/userlist";
 	}

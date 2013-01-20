@@ -34,13 +34,13 @@ public class ListMsgServices {
 		}
 
 		// 获取所有用户
-		List<Map> userList = userServices.newUserAll();
+		List<Map> userList = userServices.newUserValidAll();
 		for (Map user : userList) {
 			// 邮件
 			String content = "";
 
 			// 获取用户url
-			List<Map> urList = urlServices.newCarByUserid((Integer) user.get("id"));
+			List<Map> urList = urlServices.newCarByUseridValidAll((Integer) user.get("id"));
 			for (Map url : urList) {
 				// 处理url
 				List<String> list = msgCar(urlCSV(url.get("url").toString()));
