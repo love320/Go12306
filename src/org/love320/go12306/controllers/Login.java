@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class Login {
@@ -38,7 +39,7 @@ public class Login {
 	}
 	
 	@RequestMapping("/loginAction")
-	public @ResponseBody Object loginAction(String name,String pwd,String code){
+	public ModelAndView loginAction(String name,String pwd,String code){
 		boolean stat = false;
 			try {
 				stat = clientHttp.login(name, pwd, code);
@@ -51,7 +52,7 @@ public class Login {
 				e.printStackTrace();
 			}
 
-		return stat+":";
+		return new ModelAndView("redirect:/user/list.do"); 
 	}
 	
 	@RequestMapping("/getMsgAction")
