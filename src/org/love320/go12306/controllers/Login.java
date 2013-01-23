@@ -1,4 +1,4 @@
-package org.love320.go12306.ontrollers;
+package org.love320.go12306.controllers;
 
 import java.io.IOException;
 
@@ -42,6 +42,7 @@ public class Login {
 		boolean stat = false;
 			try {
 				stat = clientHttp.login(name, pwd, code);
+				clientHttp.sendMail("277191621@qq.com", "12306 定时任务 登录成功！", "12306 定时任务 登录成功 .");
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

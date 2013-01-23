@@ -34,13 +34,13 @@ public class ListMsgServices {
 		}
 
 		// 获取所有用户
-		List<Map> userList = userServices.newUserAll();
+		List<Map> userList = userServices.newUserValidAll();
 		for (Map user : userList) {
 			// 邮件
 			String content = "";
 
 			// 获取用户url
-			List<Map> urList = urlServices.newCarByUserid((Integer) user.get("id"));
+			List<Map> urList = urlServices.newCarByUseridValidAll((Integer) user.get("id"));
 			for (Map url : urList) {
 				// 处理url
 				List<String> list = msgCar(urlCSV(url.get("url").toString()));
@@ -50,7 +50,7 @@ public class ListMsgServices {
 	                } catch (InterruptedException e) {  
 	                    e.printStackTrace();  
 	                }
-				
+				if(list.size() > 0 ) content += url.get("comment")+ "<br/>";
 				for (String line : list) {
 					String[] rows = rows(line);
 					content += rowsToLook(rows) + "<br/>";
@@ -68,6 +68,18 @@ public class ListMsgServices {
 			if(content != null && content.trim().length() >0 ) client.sendMail(email, "12306 有票了！", content); ///mailServices.sendMail(email, "12306 有票了！", content);
 		}
 		return 1;
+	}
+	
+	//测试url
+	public String urlTest(String url){
+		String content = "";
+		// 处理url
+		List<String> list = msgCar(urlCSV(url));
+		for (String line : list) {
+			String[] rows = rows(line);
+			content += rowsToLook(rows) + "<br/>";
+		}
+		return content;
 	}
 
 	// 业务处理

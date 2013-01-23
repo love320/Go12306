@@ -11,13 +11,55 @@
 <link href="${base}/less/docs.css" rel="stylesheet" type="text/css" />
 </head>
 <body  data-spy="scroll" data-target=".bs-docs-sidebar">
-<img height="26" src="${base}/imagecode.do" onclick="this.src=this.src" title="单击刷新验证码" id="img_rrand_code">
-<form class="form-horizontal" action="${base}/loginAction.do"   method="post">
-				账号：<input type="text"  name="name" value="Love320" placeholder="Love320" >
-				姓名：<input type="text"  name="pwd" value="love320" placeholder="love320" >
-				验证码：<input type="text"  name="code" value="" ><br/>
-				<button class="btn btn-large btn-block btn-primary"  type="submit">保存</button>
-				</form>
+
+<!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="/">冰迪网络</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <#list list as xx>
+              <li class="">
+                <a href="${base}/url/list.do?userid=${xx.id}">${xx.username}</a>
+              </li>
+              </#list>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+      <div class="container">
+      <table class="table table-hover"  >
+      		<tr>
+      			<td><a href="${base}/user/input.do">添加</a></td>
+      			<td>账号</td>
+      			<td>密码</td>
+      			<td>邮箱</td>
+      			<td>状态</td>
+      			<td>操作</td>
+      		</tr>
+      		<#list list as xx>
+      		<tr>
+      			<td>${xx.id}</td>
+      			<td>${xx.username}</td>
+      			<td>${xx.password}</td>
+      			<td>${xx.email}</td>
+      			<td>${xx.state}</td>
+      			<td><a href="${base}/user/input.do?userid=${xx.id}">修改</a></td>
+      		</tr>
+			</#list>
+    	</table>
+      </div>
+
 
     <!-- Le javascript
     ================================================== -->
