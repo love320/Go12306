@@ -15,7 +15,7 @@ public class UrlServices {
 	
 	//获取指定用户的url 监制的车辆
 	public List newCarByUserid(Integer id){
-		String sql = "SELECT  `url`,  `comment` FROM `url` t where t.userid = ?  LIMIT 1000 ";
+		String sql = "SELECT  `id`,`url`,  `comment` FROM `url` t where t.userid = ?  LIMIT 1000 ";
 		return resJdbc.queryForList(sql,id);
 	}
 	

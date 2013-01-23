@@ -1,6 +1,7 @@
 package org.love320.go12306.services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -180,5 +181,28 @@ public class ListMsgServices {
 		  matcher.appendTail(sb); 
 		  return sb.toString(); 
 		}
+	
+	public int orderPost(){
+		String selectStr = "G6014#03:18#08:12#6i000G601405#IOQ#CWQ#11:30#深圳北#长沙南#01#06#O*****0001M*****0077P*****0016#292086204D8CC270270E2293B18383C6C4A74D09F6CB2B45AA6082A3#Q7";
+		String[] StrS = selectStr.split("#");
+		Map postData = new HashMap<String,String>();
+		postData.put("station_train_code", StrS[0]);
+		postData.put("lishi", StrS[1]);
+		postData.put("train_start_time", StrS[2]);
+		postData.put("trainno4", StrS[3]);
+		postData.put("from_station_telecode", StrS[4]);
+		postData.put("to_station_telecode", StrS[5]);
+		postData.put("arrive_time", StrS[6]);
+		postData.put("from_station_name", StrS[7]);
+		postData.put("to_station_name", StrS[8]);
+		postData.put("from_station_no", StrS[9]);
+		postData.put("to_station_no", StrS[10]);
+		postData.put("ypInfoDetail", StrS[11]);
+		postData.put("mmStr", StrS[12]);
+		postData.put("locationCode", StrS[13]);
+		String url = "https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=submutOrderRequest";
+		String contant = client.urlPostMsg(url, postData);
+		return 1;
+	}
 
 }

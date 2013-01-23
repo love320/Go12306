@@ -41,17 +41,17 @@ public class Login {
 	@RequestMapping("/loginAction")
 	public ModelAndView loginAction(String name,String pwd,String code){
 		boolean stat = false;
-			try {
-				stat = clientHttp.login(name, pwd, code);
+
+				try {
+					stat = clientHttp.login(name, pwd, code);
+				} catch (ClientProtocolException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				clientHttp.sendMail("277191621@qq.com", "12306 定时任务 登录成功！", "12306 定时任务 登录成功 .");
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			///
 		return new ModelAndView("redirect:/user/list.do"); 
 	}
 	

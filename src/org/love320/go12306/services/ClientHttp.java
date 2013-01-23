@@ -2,16 +2,20 @@ package org.love320.go12306.services;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -19,11 +23,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
@@ -34,7 +40,8 @@ import com.google.gson.Gson;
 @Service
 public class ClientHttp {
 
-	private static HttpClient client = new DefaultHttpClient();// 浏览器
+	//private static HttpClient client = new DefaultHttpClient(new ThreadSafeClientConnManager());;// 浏览器
+	private static HttpClient client = new DefaultHttpClient();;// 浏览器
 	private static boolean isLogin = false;// 登录
 	
 	ClientHttp(){
@@ -90,9 +97,10 @@ public class ClientHttp {
 	public byte[] newImage() throws ClientProtocolException, IOException {
 		String url = "https://dynamic.12306.cn/otsweb/passCodeAction.do?rand=sjrand"+ Math.random();
 		HttpGet httpGet = new HttpGet(url);
-		HttpResponse response =client.execute(httpGet);
+		HttpResponse response =manyHttp(httpGet);
 		InputStream is = response.getEntity().getContent();
 		byte[] contentBytes = IOUtils.toByteArray(is);
+		httpGet.releaseConnection();
 		return contentBytes;
 	}
 	
@@ -116,9 +124,9 @@ public class ClientHttp {
 		 nvps.add(new BasicNameValuePair("randErrorFocus", ""));
 		 post.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
 		 
-		 HttpResponse response = client.execute(post);  
+		 HttpResponse response = manyHttp(post);  
          String entity = EntityUtils.toString(response.getEntity()); 
-         
+         post.releaseConnection();
 		return vailed();
 	}
 	
@@ -140,8 +148,14 @@ public class ClientHttp {
 		String entity = null;
 		try {
 			HttpGet httpGet = new HttpGet(url);
-			HttpResponse response =client.execute(httpGet);
+			httpGet.addHeader("Accept", "text/plain, */*");
+			httpGet.addHeader("Content-Type", "application/x-www-form-urlencoded");
+			httpGet.addHeader("Referer", "http://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init");
+			httpGet.addHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; QQDownload 734; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)");
+			httpGet.addHeader("x-requested-with", "XMLHttpRequest");
+			HttpResponse response =manyHttp(httpGet);
 		    entity = EntityUtils.toString(response.getEntity(),"utf-8");
+		    httpGet.releaseConnection();
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -152,6 +166,89 @@ public class ClientHttp {
 		System.out.println(entity);
         return entity;
 	}
+	
+	public String urlPostMsg(String url,Map map){
+		String entity = "";
+		try {
+			HttpPost post = new HttpPost("https://dynamic.12306.cn/otsweb/loginAction.do?method=login");
+		 	List<NameValuePair> nvps = new ArrayList<NameValuePair>(); 
+		 	
+		 	Set<String> key = map.keySet();
+	        for (Iterator it = key.iterator(); it.hasNext();) {
+	            String s = (String) it.next();
+	            nvps.add(new BasicNameValuePair(s,map.get(s).toString()));
+	        }
+		 	
+			post.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
+			HttpResponse response = manyHttp(post);  
+			
+			int status = response.getStatusLine().getStatusCode();
+			if(status == 302){
+				String reUrl =response.getLastHeader("location").getValue();
+				post.releaseConnection();
+			    response = redirect(reUrl);
+			}
+			entity = EntityUtils.toString(response.getEntity()); 
+			post.releaseConnection();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 
+		return entity;
+	}
+	
+	//多线程使用 
+	public HttpResponse manyHttp(HttpUriRequest  httpUriRequest){
+		try {
+			//synchronized(client){
+				HttpResponse response = client.execute(httpUriRequest);
+				return response;
+			//}
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+		return null;
+	}
+	
+	//重写向
+	public HttpResponse redirect(String url){
+		try {
+			HttpGet httpGet = new HttpGet(url);
+			httpGet.addHeader("Accept", "text/plain, */*");
+			httpGet.addHeader("Content-Type", "application/x-www-form-urlencoded");
+			httpGet.addHeader("Referer", "http://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init");
+			httpGet.addHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; QQDownload 734; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)");
+			//httpGet.addHeader("x-requested-with", "XMLHttpRequest");
+			HttpResponse response =client.execute(httpGet);
+			int status = response.getStatusLine().getStatusCode();
+			if(status == 302){
+				String reUrl =response.getLastHeader("location").getValue();
+				httpGet.releaseConnection();
+			    response = redirect(reUrl);
+			}
+			return response;
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
 	
 	//远程发邮件 
 	public int sendMail(String toMail,String title,String content){
