@@ -117,6 +117,11 @@ public class ClientHttp {
 		String entity = null;
 		try {
 			HttpGet httpGet = new HttpGet(url);
+			httpGet.addHeader("Accept", "text/plain, */*");
+			httpGet.addHeader("Content-Type", "application/x-www-form-urlencoded");
+			httpGet.addHeader("Referer", "http://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init");
+			httpGet.addHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; QQDownload 734; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)");
+			httpGet.addHeader("x-requested-with", "XMLHttpRequest");
 			HttpResponse response =client.execute(httpGet);
 		    entity = EntityUtils.toString(response.getEntity());
 		} catch (ClientProtocolException e) {
