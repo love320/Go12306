@@ -187,7 +187,7 @@ public class ListMsgServices {
 		}
 	
 	public int orderPost(){
-		String selectStr = "G1004#03:14#08:30#6i000G100401#IOQ#CWQ#11:44#深圳北#长沙南#01#06#O*****0233M*****0050P*****0008#C45968503E2B62475A073996A5F100D979E98A0A3B079C98712034FD#Q6";
+		String selectStr = "K9064#12:32#11:20#69000K906407#OSQ#AEQ#23:52#深圳西#益阳#01#11#1*****41041*****12243*****0000#EA39CE163983E99FD79BA8C9F0BDC5985B95ADB80122128EA3289927#Q6";
 		String[] StrS = selectStr.split("#");
 		Map postData = new HashMap<String,String>();
 		postData.put("station_train_code", StrS[0]);
@@ -204,11 +204,33 @@ public class ListMsgServices {
 		postData.put("ypInfoDetail", StrS[11]);
 		postData.put("mmStr", StrS[12]);
 		postData.put("locationCode", StrS[13]);
+		
+		postData.put("train_date", "2013-02-12");
+		postData.put("seattype_num", "");
+		postData.put("include_student", "00");
+		postData.put("from_station_telecode_name", "深圳");
+		postData.put("to_station_telecode_name", "益阳");
+		postData.put("round_train_date", "2013-02-13");
+		postData.put("round_start_time_str", "00:00--24:00");
+		postData.put("single_round_type", "1");
+		postData.put("train_pass_type", "QB");
+		postData.put("train_class_arr", "QB#D#Z#T#K#QT#");
+		postData.put("start_time_str", "00:00--24:00");
+		
 		String url = "https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=submutOrderRequest";
-		String contant = client.urlPostMsg(url, postData);
-		//htmlParse(contant);
-		//System.out.println(contant);
-		//System.out.println(client.urlMsg("https://dynamic.12306.cn/otsweb/regist_note.jsp"));
+		String contant = "";
+		contant = client.urlPostMsg(url, postData);
+		contant = client.urlMsg("https://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=init");
+		Map orderMap = htmlParse(contant);
+		String rand = null;
+		System.out.println();
+		orderMap.put("randCode", rand);
+		//contant= client.urlPostMsg("https://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=checkOrderInfo&rand="+rand, orderMap);
+		contant = client.urlMsg("http://dynamic.12306.cn/otsweb/order/myOrderAction.do?method=queryOrderWaitTime&tourFlag=dc");
+		System.out.println();
+		contant= client.urlPostMsg("http://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=payOrder&orderSequence_no=E416539202",orderMap);
+		System.out.println();
+		System.out.println(contant);
 		return 1;
 	}
 	
@@ -222,6 +244,11 @@ public class ListMsgServices {
 		  String value =  link.attr("value");
 		  inputMap.put(name, value);
 		}
+		
+		inputMap.put("passenger_1_seat",1);
+		inputMap.put("passenger_1_ticket",1);
+		inputMap.put("passenger_1_cardtype",1);
+		
 		return inputMap;
 	}
 

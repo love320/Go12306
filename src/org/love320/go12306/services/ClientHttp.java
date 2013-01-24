@@ -170,7 +170,7 @@ public class ClientHttp {
 	public String urlPostMsg(String url,Map map){
 		String entity = "";
 		try {
-			HttpPost post = new HttpPost("https://dynamic.12306.cn/otsweb/loginAction.do?method=login");
+			HttpPost post = new HttpPost(url);
 		 	List<NameValuePair> nvps = new ArrayList<NameValuePair>(); 
 		 	
 		 	Set<String> key = map.keySet();
