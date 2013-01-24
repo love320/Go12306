@@ -204,13 +204,25 @@ public class ClientHttp {
 		return entity;
 	}
 	
+	public HttpResponse sendHttp(HttpGet httpGet){
+		HttpResponse response = manyHttp(httpGet);
+		httpGet.releaseConnection();
+		return redirect(response);
+	}
+	
+	public HttpResponse sendHttp(HttpPost httpPost){
+		HttpResponse response = manyHttp(httpPost);
+		httpPost.releaseConnection();
+		return redirect(response);
+	}
+	
 	//多线程使用 
 	public HttpResponse manyHttp(HttpUriRequest  httpUriRequest){
 		try {
-			//synchronized(client){
+			synchronized(client){
 				HttpResponse response = client.execute(httpUriRequest);
 				return response;
-			//}
+			}
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -221,16 +233,25 @@ public class ClientHttp {
 		return null;
 	}
 	
+	public HttpResponse redirect(HttpResponse response ){
+		int status = response.getStatusLine().getStatusCode();
+		if(status == 302){
+			String reUrl =response.getLastHeader("location").getValue();
+		    response = redirect(reUrl);
+		}
+		return response;
+	}
+	
 	//重写向
 	public HttpResponse redirect(String url){
-		try {
+
 			HttpGet httpGet = new HttpGet(url);
 			httpGet.addHeader("Accept", "text/plain, */*");
 			httpGet.addHeader("Content-Type", "application/x-www-form-urlencoded");
 			httpGet.addHeader("Referer", "http://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init");
 			httpGet.addHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; QQDownload 734; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)");
 			//httpGet.addHeader("x-requested-with", "XMLHttpRequest");
-			HttpResponse response =client.execute(httpGet);
+			HttpResponse response =manyHttp(httpGet);
 			int status = response.getStatusLine().getStatusCode();
 			if(status == 302){
 				String reUrl =response.getLastHeader("location").getValue();
@@ -238,15 +259,6 @@ public class ClientHttp {
 			    response = redirect(reUrl);
 			}
 			return response;
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return null;
 	}
 	
 	

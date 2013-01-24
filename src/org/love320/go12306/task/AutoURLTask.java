@@ -15,7 +15,7 @@ public class AutoURLTask extends TimerTask {
 	public void run() {
 		try {
 			System.out.println("开始自动处理");
-			//listMsgServices.businessAuto();
+			listMsgServices.businessAuto();
 			System.out.println("结束自动处理");
 		} catch (Exception e) {
 			e.printStackTrace();
