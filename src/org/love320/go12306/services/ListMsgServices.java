@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -183,7 +187,7 @@ public class ListMsgServices {
 		}
 	
 	public int orderPost(){
-		String selectStr = "G6014#03:18#08:12#6i000G601405#IOQ#CWQ#11:30#深圳北#长沙南#01#06#O*****0001M*****0077P*****0016#292086204D8CC270270E2293B18383C6C4A74D09F6CB2B45AA6082A3#Q7";
+		String selectStr = "G1004#03:14#08:30#6i000G100401#IOQ#CWQ#11:44#深圳北#长沙南#01#06#O*****0233M*****0050P*****0008#C45968503E2B62475A073996A5F100D979E98A0A3B079C98712034FD#Q6";
 		String[] StrS = selectStr.split("#");
 		Map postData = new HashMap<String,String>();
 		postData.put("station_train_code", StrS[0]);
@@ -202,7 +206,23 @@ public class ListMsgServices {
 		postData.put("locationCode", StrS[13]);
 		String url = "https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=submutOrderRequest";
 		String contant = client.urlPostMsg(url, postData);
+		//htmlParse(contant);
+		//System.out.println(contant);
+		//System.out.println(client.urlMsg("https://dynamic.12306.cn/otsweb/regist_note.jsp"));
 		return 1;
+	}
+	
+	//分析html并返回 map
+	public Map htmlParse(String html){
+		Map inputMap = new HashMap<String,String>();
+		Document doc = Jsoup.parse(html);
+		Elements links = doc.getElementsByTag("input");
+		for (Element link : links) {
+		  String name = link.attr("name");
+		  String value =  link.attr("value");
+		  inputMap.put(name, value);
+		}
+		return inputMap;
 	}
 
 }
