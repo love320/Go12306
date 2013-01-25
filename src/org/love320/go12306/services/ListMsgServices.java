@@ -14,6 +14,8 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+
 @Service
 public class ListMsgServices {
 
@@ -186,8 +188,8 @@ public class ListMsgServices {
 		  return sb.toString(); 
 		}
 	
-	public int orderPost(){
-		String selectStr = "K9064#12:32#11:20#69000K906407#OSQ#AEQ#23:52#深圳西#益阳#01#11#1*****41041*****12243*****0000#EA39CE163983E99FD79BA8C9F0BDC5985B95ADB80122128EA3289927#Q6";
+	public int orderPost(String selectStr ){
+		//String selectStr = "K9075#12:02#22:28#6a000K907507#AEQ#BJQ#10:30#益阳#深圳东#02#10#1*****30444*****00021*****01413*****0000#20C5191549116E23B373E0FAE816A8F507ADF8DE8899C7F4FCA054E3#Q6";
 		String[] StrS = selectStr.split("#");
 		Map postData = new HashMap<String,String>();
 		postData.put("station_train_code", StrS[0]);
@@ -208,8 +210,8 @@ public class ListMsgServices {
 		postData.put("train_date", "2013-02-12");
 		postData.put("seattype_num", "");
 		postData.put("include_student", "00");
-		postData.put("from_station_telecode_name", "深圳");
-		postData.put("to_station_telecode_name", "益阳");
+		postData.put("from_station_telecode_name", StrS[7]);
+		postData.put("to_station_telecode_name",  StrS[8]);
 		postData.put("round_train_date", "2013-02-13");
 		postData.put("round_start_time_str", "00:00--24:00");
 		postData.put("single_round_type", "1");
@@ -225,12 +227,39 @@ public class ListMsgServices {
 		String rand = null;
 		System.out.println();
 		orderMap.put("randCode", rand);
-		//contant= client.urlPostMsg("https://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=checkOrderInfo&rand="+rand, orderMap);
-		contant = client.urlMsg("http://dynamic.12306.cn/otsweb/order/myOrderAction.do?method=queryOrderWaitTime&tourFlag=dc");
-		System.out.println();
-		contant= client.urlPostMsg("http://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=payOrder&orderSequence_no=E416539202",orderMap);
-		System.out.println();
-		System.out.println(contant);
+		
+		//验证是否可以预订
+		orderMap.put("tFlag", "dc");
+		contant= client.urlPostMsg("https://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=checkOrderInfo&rand="+rand,orderMap);
+		
+		//验证提交
+		Gson gson = new Gson();
+		Map checkOrder = gson.fromJson(contant, Map.class);
+		System.out.println(checkOrder.get("errMsg"));
+		if(checkOrder.get("errMsg").toString().equals("Y")){
+			//获取排队情况
+			String par = "train_date="+orderMap.get("orderRequest.train_date")+
+					"&train_no="+orderMap.get("orderRequest.train_no")+
+					"&station="+orderMap.get("orderRequest.station_train_code")+
+					"&seat="+orderMap.get("passenger_1_seat")+
+					"&from="+orderMap.get("orderRequest.from_station_telecode")+
+					"&to="+orderMap.get("orderRequest.to_station_telecode")+
+					"&ticket="+orderMap.get("leftTicketStr");
+			//
+			contant = client.urlMsg("http://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=getQueueCount&"+par);
+			//提交
+			orderMap.put("orderRequest.reserve_flag","A");
+			orderMap.put("checkbox0",0);
+			contant= client.urlPostMsg("https://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=confirmSingleForQueue",orderMap);
+		    checkOrder = gson.fromJson(contant, Map.class);
+			//获取预订号
+		    if(checkOrder.get("errMsg").toString().equals("Y")){
+		    	contant = client.urlMsg("https://dynamic.12306.cn/otsweb/order/myOrderAction.do?method=queryOrderWaitTime&tourFlag=dc");
+		    	//支持
+				//contant = client.urlMsg("https://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=payOrder&orderSequence_no="+rand);
+		    }
+			System.out.println(contant);
+		}
 		return 1;
 	}
 	
@@ -248,6 +277,13 @@ public class ListMsgServices {
 		inputMap.put("passenger_1_seat",1);
 		inputMap.put("passenger_1_ticket",1);
 		inputMap.put("passenger_1_cardtype",1);
+		
+		inputMap.put("checkbox1", 1);
+		inputMap.put("orderRequest.train_date", "2013-01-25");
+		inputMap.put("passengerTickets", "1,0,1,向文韬,1,430681198902062057,,Y");
+		inputMap.put("passenger_1_name", "向文韬");
+		inputMap.put("passenger_1_cardno", "430681198902062057");
+		inputMap.put("oldPassengers", "向文韬,1,430681198902062057");
 		
 		return inputMap;
 	}

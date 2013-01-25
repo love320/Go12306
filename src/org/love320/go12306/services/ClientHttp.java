@@ -71,7 +71,7 @@ public class ClientHttp {
 			Gson gson = new Gson();
 			Map map = gson.fromJson(data, Map.class);
 			isLogin = true;
-			System.out.println(data);
+			//System.out.println(data);
 		} catch (Exception e) {
 			isLogin = false;
 			client = new DefaultHttpClient();// 浏览器
@@ -96,6 +96,16 @@ public class ClientHttp {
 	 */
 	public byte[] newImage() throws ClientProtocolException, IOException {
 		String url = "https://dynamic.12306.cn/otsweb/passCodeAction.do?rand=sjrand"+ Math.random();
+		HttpGet httpGet = new HttpGet(url);
+		HttpResponse response =manyHttp(httpGet);
+		InputStream is = response.getEntity().getContent();
+		byte[] contentBytes = IOUtils.toByteArray(is);
+		httpGet.releaseConnection();
+		return contentBytes;
+	}
+	
+	public byte[] newImageOrder() throws ClientProtocolException, IOException {
+		String url = "https://dynamic.12306.cn/otsweb/passCodeAction.do?rand=randp&amp;"+ Math.random();
 		HttpGet httpGet = new HttpGet(url);
 		HttpResponse response =manyHttp(httpGet);
 		InputStream is = response.getEntity().getContent();
@@ -138,7 +148,7 @@ public class ClientHttp {
 		//获取登录Rand
         	String url = "https://dynamic.12306.cn/otsweb/loginAction.do?method=loginAysnSuggest";
 	        String strsing =  urlMsg(url);
-	        System.out.println(strsing.subSequence(14, 17));
+	        //System.out.println(strsing.subSequence(14, 17));
 	        strsing =strsing.subSequence(14, 17).toString();
 	        return strsing;
 	}
@@ -163,7 +173,7 @@ public class ClientHttp {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(entity);
+		//System.out.println(entity);
         return entity;
 	}
 	
@@ -171,12 +181,20 @@ public class ClientHttp {
 		String entity = "";
 		try {
 			HttpPost post = new HttpPost(url);
+			post.addHeader("Accept", "application/json, text/javascript, */*");
+			post.addHeader("Content-Type", "application/x-www-form-urlencoded");
+			post.addHeader("Referer", "https://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=init");
+			post.addHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; QQDownload 734; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)");
+			post.addHeader("x-requested-with", "XMLHttpRequest");
+			
 		 	List<NameValuePair> nvps = new ArrayList<NameValuePair>(); 
 		 	
 		 	Set<String> key = map.keySet();
 	        for (Iterator it = key.iterator(); it.hasNext();) {
 	            String s = (String) it.next();
-	            nvps.add(new BasicNameValuePair(s,map.get(s).toString()));
+	            if(s.trim().length() >0){
+	            	nvps.add(new BasicNameValuePair(s,map.get(s).toString()));
+	            }
 	        }
 		 	
 			post.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));

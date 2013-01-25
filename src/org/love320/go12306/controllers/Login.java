@@ -33,6 +33,15 @@ public class Login {
 		return new ResponseEntity<byte[]>(clientHttp.newImage(), headers,HttpStatus.CREATED);
 	}
 	
+	//下载验证码
+		@RequestMapping("/imagecodeorder")
+		public ResponseEntity<byte[]> downloadOrder() throws IOException {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			//headers.setContentDispositionFormData("attachment", "dict.txt");
+			return new ResponseEntity<byte[]>(clientHttp.newImageOrder(), headers,HttpStatus.CREATED);
+		}
+	
 	@RequestMapping("/login")
 	public String loginPage(){
 		return "go12306/login";
