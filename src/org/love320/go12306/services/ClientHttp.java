@@ -18,6 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -25,6 +26,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -40,8 +42,8 @@ import com.google.gson.Gson;
 @Service
 public class ClientHttp {
 
-	//private static HttpClient client = new DefaultHttpClient(new ThreadSafeClientConnManager());;// 浏览器
-	private static HttpClient client = new DefaultHttpClient();;// 浏览器
+	//private static HttpClient client = new DefaultHttpClient(new ThreadSafeClientConnManager());// 浏览器
+	private static HttpClient client = new DefaultHttpClient();// 浏览器
 	private static boolean isLogin = false;// 登录
 	
 	ClientHttp(){
@@ -156,24 +158,23 @@ public class ClientHttp {
 	public String urlMsg(String url){
 		
 		String entity = null;
-		try {
-			HttpGet httpGet = new HttpGet(url);
+		HttpGet httpGet = new HttpGet(url);
 			httpGet.addHeader("Accept", "text/plain, */*");
 			httpGet.addHeader("Content-Type", "application/x-www-form-urlencoded");
 			httpGet.addHeader("Referer", "http://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init");
 			httpGet.addHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; QQDownload 734; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)");
 			httpGet.addHeader("x-requested-with", "XMLHttpRequest");
-			HttpResponse response =manyHttp(httpGet);
-		    entity = EntityUtils.toString(response.getEntity(),"utf-8");
+		    try {
+		    	HttpResponse response =manyHttp(httpGet);
+				entity = EntityUtils.toString(response.getEntity(),"utf-8");
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		    httpGet.releaseConnection();
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//System.out.println(entity);
         return entity;
 	}
 	
@@ -234,6 +235,51 @@ public class ClientHttp {
 		return redirect(response);
 	}
 	
+	public synchronized String curl(HttpGet httpGet,HttpPost httpPost){
+		HttpResponse response = null;
+		if(httpGet != null){
+			try {
+				response = client.execute(httpGet);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if(httpPost != null){
+			try {
+				response = client.execute(httpPost);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		if(response != null){
+			response = redirect(response);
+		}
+		String entity = null;
+		try {
+			entity = EntityUtils.toString(response.getEntity(),"utf-8");
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(httpGet != null) httpGet.releaseConnection();
+		if(httpPost != null) httpPost.releaseConnection();
+		
+		return entity;
+	}
+	
 	//多线程使用 
 	public HttpResponse manyHttp(HttpUriRequest  httpUriRequest){
 		try {
@@ -247,7 +293,7 @@ public class ClientHttp {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}  
+		} 
 		return null;
 	}
 	
