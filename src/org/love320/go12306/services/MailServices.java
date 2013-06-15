@@ -21,11 +21,11 @@ public class MailServices {
 	
 	public int sendSingMail(String toMail,String title,String content){
 		MailSenderInfo mailInfo = new MailSenderInfo();      
-	    mailInfo.setMailServerHost("smtp.qq.com");      
+	    mailInfo.setMailServerHost("218.17.227.203");      
 	    mailInfo.setMailServerPort("25");      
 	    mailInfo.setValidate(true);      
-	    mailInfo.setUserName("277191621@qq.com");      
-	    mailInfo.setPassword("123456");//您的邮箱密码      
+	    mailInfo.setUserName("zhangdi");      
+	    mailInfo.setPassword("Sz2006");//您的邮箱密码      
 	    mailInfo.setFromAddress("277191621@qq.com");      
 	    mailInfo.setToAddress(toMail);      
 	    mailInfo.setSubject(title);      

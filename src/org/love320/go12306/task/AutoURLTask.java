@@ -14,9 +14,9 @@ public class AutoURLTask extends TimerTask {
 	@Override
 	public void run() {
 		try {
-			System.out.println("开始自动处理");
-			//listMsgServices.businessAuto();
-			System.out.println("结束自动处理");
+			System.out.println("start .. 开始自动处理");
+			listMsgServices.kingdomCarNum();
+			System.out.println("end ..结束自动处理");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("定时任务：出错");

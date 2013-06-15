@@ -1,9 +1,13 @@
 package org.love320.go12306.services;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,70 +16,27 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.kingdom.digitalcity.esb.webservice.soap.gpsapplication.IGpsCommonService;
 
 @Service
 public class ListMsgServices {
 
 	@Autowired
 	private ClientHttp client;
-
-	@Autowired
-	private UserServices userServices;
-
-	@Autowired
-	private UrlServices urlServices;
 	
 	@Autowired
 	private MailServices mailServices;
+	
+	@Autowired
+	private IGpsCommonService gpsCommonService;
+	
+	@Autowired
+	private JdbcTemplate resJdbcTemplate ;
 
-	// 定时(http)业务处理
-	public int businessAuto() {
-		
-		if(!client.isLogin()) {
-			//mailServices.sendMail("277191621@qq.com", "12306 定时任务 没登录！", "12306 定时任务 没登录");
-			client.sendMail("277191621@qq.com", "12306 定时任务 没登录！", "12306 定时任务 没登录");
-			return 0;
-		}
-
-		// 获取所有用户
-		List<Map> userList = userServices.newUserValidAll();
-		for (Map user : userList) {
-			// 邮件
-			String content = "";
-
-			// 获取用户url
-			List<Map> urList = urlServices.newCarByUseridValidAll((Integer) user.get("id"));
-			for (Map url : urList) {
-				// 处理url
-				List<String> list = msgCar(urlCSV(url.get("url").toString()));
-				
-				 try {  
-	                    Thread.sleep(1000);  
-	                } catch (InterruptedException e) {  
-	                    e.printStackTrace();  
-	                }
-				if(list.size() > 0 ) content += url.get("comment")+ "<br/>";
-				for (String line : list) {
-					String[] rows = rows(line);
-					content += rowsToLook(rows) + "<br/>";
-				}
-			}
-
-			// 装载信息
-			user.put("content", content);
-		}
-
-		for (Map user : userList) {
-			// 发邮件
-			String email = user.get("email").toString();
-			String content = user.get("content").toString();
-			if(content != null && content.trim().length() >0 ) client.sendMail(email, "12306 有票了！", content); ///mailServices.sendMail(email, "12306 有票了！", content);
-		}
-		return 1;
-	}
 	
 	//测试url
 	public String urlTest(String url){
@@ -286,5 +247,116 @@ public class ListMsgServices {
 		
 		return inputMap;
 	}
-
+	
+	private int isOk = 0;
+	
+	public void kingdomCarNum(){
+		String carjson = "";
+		try {
+			carjson = gpsCommonService.getEquByGpsUserForMap("0123456789", 1);
+		} catch (Exception e) {
+			client.sendMail("admin@love320.com", "Web 166 Error", "Web 166 Error!");
+		}
+		//System.out.println("carjson:"+carjson);
+		Gson gson = new Gson();
+		List<Map> list = gson.fromJson(carjson, List.class);
+		int onlineNum = actionCarNum(list,"在线");
+		int offlineNum =  actionCarNum(list,"离线");
+		saveMysql(onlineNum,offlineNum);
+		
+		istime(list);
+		
+		if(onlineNum < 50 ){
+			String msg = "在线车辆:"+onlineNum +" 离线车辆:"+offlineNum + " 在线车辆少于 100 ";
+			String title="online:"+onlineNum +" offline:"+offlineNum;
+			client.sendMail("admin@love320.com", title+" GPS car Information is wrong", "车辆少了 "+msg);
+		}
+		if(isOk == 1440){
+			client.sendMail("admin@love320.com", "System Run OK ! online:"+onlineNum, "System Run OK !");
+			resJdbcTemplate.execute(" DELETE FROM carnum WHERE  time < CURDATE()-2 ");
+			isOk = 0;
+		}
+		isOk++;
+		
+	}
+	
+	private int actionCarNum(List<Map> list,String type){
+		int carNum = 0;
+		if(list.size() == 2){
+			for(Map onlineMap : list){
+				String istype = (String)onlineMap.get("onlineText");
+				if(!istype.equals(type)) continue;
+				List<Map> carlist = (List) onlineMap.get("carBeans");
+				for(Map carBeansMap :carlist){
+					List<Map> carslist = (List) carBeansMap.get("cars");
+					if(carslist != null) carNum += carslist.size();
+				}
+			}
+		}
+		return carNum;
+	}
+	
+	public int saveMysql(int online,int offline){
+		String sql = " INSERT INTO `carnum` (`online`, `offline`,`time`) VALUES (?, ?,?) ";
+		Calendar calendar = Calendar .getInstance();
+		calendar.add(Calendar.HOUR, 8);
+		resJdbcTemplate.update(sql, online,offline,calendar.getTime());
+		return 0;
+	}
+	
+	public List carNum(String start,String end,int type){
+		String sql = " select ";
+	     sql += type ==1 ? " online ":" offline ";
+		sql += " as y , date_format(time,'%Y-%m-%d %H:%i:%S') as name   FROM `carnum` where 1=1 and time BETWEEN ? and ? order by time asc  ";
+		List object = resJdbcTemplate.queryForList(sql,start,end);
+		/*List objects = (List)object;
+		 Integer[] ints = new Integer[objects.size()];
+		 for(int i = 0 ; i<ints.length;i++){
+			 Map sing = (Map)objects.get(i);
+			 ints[i] = (Integer)sing.get("num");
+		 }
+		 System.out.println(start +"  "+end + "type :"+type + " ints:"+ints.length);*/
+		return object;
+	}
+	
+	public boolean istime(List<Map> list){
+		Calendar calendar = GregorianCalendar.getInstance(); 
+		System.out.println("The MINUTE is: " + calendar.get(Calendar.MINUTE)); 
+		int min = calendar.get(Calendar.MINUTE);
+		int themin = 0;
+		boolean st = true;
+		for(int i =0 ;i<5;i++){
+			//System.out.println((min - gettime(list,i)) < 1 );
+			themin =  gettime(list,i);
+			if((min - themin) < 2 ) st = false;
+		}
+		if(st) client.sendMail("admin@love320.com", "Web 166 Time :"+min+" The"+themin, "Web 166 Time!"+min+" The"+themin);
+		
+		return true;
+	}
+	
+	public int gettime(List<Map> list,Integer k){
+		Map onlineMap = list.get(0);
+		List<Map> dems = (List<Map>) onlineMap.get("carBeans");
+		Map dem = dems.get(k);
+		List<Map> cars = (List<Map>) dem.get("cars");
+		Map carmap = cars.get(0);
+		Gson gson = new Gson();
+		Map comptertime = (Map)carmap.get("comptertime");
+		//System.out.println(comptertime);
+		//System.out.println(comptertime.get("minutes"));
+		Date date = new Date();
+		Integer min = Double.valueOf(comptertime.get("minutes").toString()).intValue();
+		//System.out.println(((Double)comptertime.get("time")).intValue());
+		//System.out.println((new Date()).getTime());
+		//Date gpstime = new Date(new Long(comptertime.toString()));
+		//System.out.println(">>>:"+gpstime.getTime());
+		return min;
+	}
+	
+	
+	
+	
+	
+	
 }

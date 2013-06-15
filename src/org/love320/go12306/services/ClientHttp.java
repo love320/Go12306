@@ -333,7 +333,7 @@ public class ClientHttp {
 		content = URLEncoder.encode(content);
 		String[] mails = toMail.split(";");
 		for(String email : mails ){
-			String url = "http://1000.love320.sinaapp.com/app/sendmail/send12306l.php?email="+email+"&title="+title+"&content="+content;
+			String url = "http://www.love320.com/app/sendmail/send12306l.php?email="+email+"&title="+title+"&content="+content;
 			urlMsg(url);
 		}
 		return 1;
